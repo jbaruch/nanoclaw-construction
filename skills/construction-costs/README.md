@@ -1,9 +1,9 @@
 # Payment proposal component
 
-This component is an inactive foundation for
+This component supports the unpublished construction workflow for
 [nanoclaw#1039](https://github.com/jbaruch/nanoclaw/issues/1039). It has no
-SKILL entrypoint, plugin manifest, cadence, network access, approval consumer,
-or spreadsheet writer. Do not register or publish it as a delivered overlay.
+network access, persistent state or write authority. The co-shipped SKILL and
+callback provider require the matching actual host producer and authority.
 
 `scripts/payment_proposal.py` reads one schema-1 JSON request from stdin, at
 most 4 MiB, and emits one schema-1 proposal. Invalid input returns nonzero
@@ -20,7 +20,12 @@ and `quote`. Unknown facts use null for all three. Quotes must occur in the
 bound source. This is provenance validation; it does not prove a model's
 semantic interpretation correct.
 
-`journal` contains `complete: true`, five `headers`, and all observed `rows`
+For the installed workflow use explicit `journal:null`: complete valid facts
+produce `requires_host_preview` and an exact row. `matching_rows:[]` then means
+no journal comparison occurred. The native preview is mandatory and owns the
+full fresh journal comparison; never fabricate an empty journal observation.
+
+For offline comparison, `journal` contains `complete: true`, five `headers`, and all observed `rows`
 after the header, using displayed string values in sheet order. Header names
 are Date, Purpose, Recepient (also Recipient or Payee), Amount, Payment type.
 Dates use the existing US display convention. Amounts represent USD with
@@ -41,3 +46,11 @@ durable pre-dispatch intent, and uncertain-outcome recovery without replay.
 Native intake, full model classification, protected owner approval, OneCLI
 Sheets access, approved append, publication, and installed runtime acceptance
 remain required before this feature can ship. All tests use synthetic data.
+
+`source_from_mail.py` binds an actual complete sanitized admin body report to
+its expected native ID and hashes exact UTF-8 body text. It does not establish
+individual label membership, attachment coverage or cryptographic attestation.
+`source_from_text.py` hashes complete supplied forwarded/clarification text and
+its retained source reference; it proves neither sender identity nor transport.
+Both emit `{schema_version,source,source_hint}`. Treat all packets as evidence
+for owner review. Their docstrings define exact stdin bounds and refusal rules.

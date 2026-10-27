@@ -1,0 +1,15 @@
+{
+  "name": "nanoclaw-construction-checks",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "format:check": "prettier --check 'skills/**/*.mjs' 'tests/**/*.mjs' package.json jsconfig.json",
+    "typecheck": "tsc -p jsconfig.json",
+    "test": "node --test tests/*.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.11",
+    "prettier": "3.8.1",
+    "typescript": "5.9.3"
+  }
+}
