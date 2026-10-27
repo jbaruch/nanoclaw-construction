@@ -1,1 +1,8 @@
-{"description":"Construction integration boundary for protected owner-approved payment journals.","name":"jbaruch/nanoclaw-construction","private":false,"rules":["rules/construction-provider-boundary.md"],"version":"0.1.0"}
+{
+  "name": "jbaruch/nanoclaw-construction",
+  "version": "0.1.0",
+  "description": "Review source-cited construction payment proposals through protected owner callbacks and a host-owned append journal.",
+  "private": false,
+  "skills": ["skills/construction-costs"],
+  "rules": ["rules/construction-provider-boundary.md", "rules/construction-journal-callbacks.md"]
+}
