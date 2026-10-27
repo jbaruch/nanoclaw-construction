@@ -6,6 +6,7 @@ import copy
 import hashlib
 import io
 import json
+import subprocess
 import sys
 import unittest
 from decimal import localcontext
@@ -55,6 +56,158 @@ def request() -> dict[str, Any]:
 
 
 class PaymentProposalTests(unittest.TestCase):
+    def test_explicit_null_journal_requires_host_preview_without_comparison(
+        self,
+    ) -> None:
+        value = request()
+        value["journal"] = None
+        original = copy.deepcopy(value)
+        result = prepare_proposal(value)
+        self.assertEqual(
+            result,
+            {
+                "schema_version": 1,
+                "disposition": "requires_host_preview",
+                "row": [
+                    "2026-09-15",
+                    "foundation work",
+                    "Example Builder",
+                    "1234.56",
+                    "Wire",
+                ],
+                "questions": [],
+                "matching_rows": [],
+                "source_id": value["source"]["id"],
+                "source_sha256": value["source"]["sha256"],
+                "write_authorized": False,
+            },
+        )
+        self.assertEqual(value, original)
+
+    def test_null_journal_actual_stdin_cli_emits_source_only_candidate(self) -> None:
+        value = request()
+        value["journal"] = None
+        script = (
+            Path(__file__).resolve().parents[1]
+            / "skills/construction-costs/scripts/payment_proposal.py"
+        )
+        result = subprocess.run(
+            [sys.executable, str(script)],
+            input=json.dumps(value),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(result.stderr, "")
+        self.assertEqual(len(result.stdout.splitlines()), 1)
+        proposal = json.loads(result.stdout)
+        self.assertEqual(proposal["disposition"], "requires_host_preview")
+        self.assertEqual(
+            proposal["row"],
+            ["2026-09-15", "foundation work", "Example Builder", "1234.56", "Wire"],
+        )
+        self.assertEqual(proposal["matching_rows"], [])
+        self.assertIs(proposal["write_authorized"], False)
+
+    def test_source_only_unknown_invoice_pending_and_non_usd_still_need_clarification(
+        self,
+    ) -> None:
+        for field in (
+            "document_kind",
+            "payment_status",
+            "currency",
+            *("date", "purpose", "payee", "amount", "payment_method"),
+        ):
+            with self.subTest(field=field):
+                value = request()
+                value["journal"] = None
+                if field == "document_kind":
+                    value["extraction"][field] = "invoice"
+                elif field in {"payment_status", "currency"}:
+                    value["extraction"][field]["value"] = (
+                        "pending" if field == "payment_status" else "EUR"
+                    )
+                else:
+                    value["extraction"][field] = {
+                        "value": None,
+                        "source_id": None,
+                        "quote": None,
+                    }
+                result = prepare_proposal(value)
+                self.assertEqual(result["disposition"], "needs_clarification")
+                self.assertIsNone(result["row"])
+                self.assertTrue(result["questions"])
+                self.assertEqual(result["matching_rows"], [])
+                self.assertFalse(result["write_authorized"])
+
+    def test_null_journal_never_waives_complete_source_hash_and_fact_citations(
+        self,
+    ) -> None:
+        for mutation in ("hash", "partial", "quote", "source_id", "missing_fact"):
+            with self.subTest(mutation=mutation):
+                value = request()
+                value["journal"] = None
+                if mutation == "hash":
+                    value["source"]["sha256"] = "0" * 64
+                elif mutation == "partial":
+                    value["source"]["complete"] = False
+                elif mutation == "quote":
+                    value["extraction"]["amount"]["quote"] = "absent evidence"
+                elif mutation == "source_id":
+                    value["extraction"]["payee"]["source_id"] = "another-mail"
+                else:
+                    del value["extraction"]["amount"]
+                with self.assertRaises(ProposalError):
+                    prepare_proposal(value)
+
+    def test_null_journal_unknown_status_and_currency_still_need_clarification(
+        self,
+    ) -> None:
+        for field in ("payment_status", "currency"):
+            with self.subTest(field=field):
+                value = request()
+                value["journal"] = None
+                value["extraction"][field] = {
+                    "value": None,
+                    "source_id": None,
+                    "quote": None,
+                }
+                result = prepare_proposal(value)
+                self.assertEqual(result["disposition"], "needs_clarification")
+                self.assertIsNone(result["row"])
+                self.assertTrue(result["questions"])
+                self.assertFalse(result["write_authorized"])
+
+    def test_null_journal_keeps_exact_amount_date_and_method_refusals(self) -> None:
+        for field, replacement in (
+            ("amount", "0"),
+            ("amount", "1.005"),
+            ("amount", "NaN"),
+            ("date", "2026-09-31"),
+            ("payment_method", "maybe bank"),
+        ):
+            with self.subTest(field=field, replacement=replacement):
+                value = request()
+                value["journal"] = None
+                value["extraction"][field]["value"] = replacement
+                with self.assertRaises(ProposalError):
+                    prepare_proposal(value)
+
+    def test_missing_or_fabricated_journal_placeholder_is_not_explicit_null(
+        self,
+    ) -> None:
+        for journal in (False, [], {}, {"complete": True}, {"rows": []}):
+            with self.subTest(journal=journal):
+                value = request()
+                value["journal"] = journal
+                with self.assertRaises(ProposalError):
+                    prepare_proposal(value)
+        value = request()
+        del value["journal"]
+        with self.assertRaises(ProposalError):
+            prepare_proposal(value)
+
     def test_complete_payment_produces_exact_cents_without_write_authority(
         self,
     ) -> None:

@@ -1,9 +1,12 @@
-"""Validate model-extracted payment facts and compare a complete journal read.
+"""Validate model-extracted payment facts, optionally comparing a complete journal.
 
 This pure component performs no network or filesystem writes and grants no
 approval. A model must read the complete sanitized source and extract the facts;
 quote containment is provenance checking, not a semantic payment classifier.
-The host writer and native intake are separate, mandatory delivery gates.
+Explicit journal:null validates only the source and requires native host preview;
+it never claims the private journal was read or a duplicate was absent. A full
+journal observation retains its existing comparison dialect. The host writer
+and native intake are separate, mandatory delivery gates.
 """
 
 from __future__ import annotations
@@ -184,7 +187,9 @@ def prepare_proposal(value: object) -> Proposal:
         or source["sha256"] != hashlib.sha256(text.encode("utf-8")).hexdigest()
     ):
         raise ProposalError("Restore the complete sanitized source and its hash.")
-    observed_rows = _journal_rows(request["journal"])
+    observed_rows = (
+        None if request["journal"] is None else _journal_rows(request["journal"])
+    )
     extraction = _object(
         request["extraction"],
         {*FIELDS, "document_kind", "payment_status"},
@@ -223,6 +228,10 @@ def prepare_proposal(value: object) -> Proposal:
         values.append(fact)
     payment_date, purpose, payee, amount, _, method = values
     row = [_date(payment_date), purpose, payee, _amount(amount), _method(method)]
+    result["row"] = row
+    if observed_rows is None:
+        result["disposition"] = "requires_host_preview"
+        return result
     key = [row[0], _key(row[1]), _key(row[2]), row[3], row[4]]
     exact = [number for number, prior in observed_rows if prior == key]
     possible = [
@@ -230,7 +239,6 @@ def prepare_proposal(value: object) -> Proposal:
         for number, prior in observed_rows
         if [prior[0], prior[2], prior[3]] == [key[0], key[2], key[3]]
     ]
-    result["row"] = row
     result["matching_rows"] = exact or possible
     result["disposition"] = (
         "already_recorded"
