@@ -1,0 +1,22 @@
+# tessl-generated artifacts
+.tessl/
+.tessl-temp/
+.claude/
+.gemini/
+.codex/
+.cursor/
+.agents/
+.vscode/
+.github/skills/
+
+# Local state and private operator configuration never ship.
+.env
+.env.*
+!.env.example
+state/
+private/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
