@@ -166,7 +166,15 @@ function directInvocation() {
   );
 }
 if (!isMainThread) {
-  if (directInvocation()) await runPrivateWorker();
+  try {
+    if (directInvocation()) await runPrivateWorker();
+    // outer-boundary-process-contract: the parent treats an absent worker
+    // result/nonzero exit as failure and emits fixed redacted diagnostics.
+    // Exit naturally so native host resources finish cleanup; an uncaught
+    // worker exception can crash teardown before the parent receives failure.
+  } catch {
+    process.exitCode = 1;
+  }
 } else {
   try {
     if (directInvocation()) {

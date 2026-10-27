@@ -45,6 +45,7 @@ function fixture(
   return { root, host, entry, env, run };
 }
 function rejected(result) {
+  assert.equal(result.signal, null);
   assert.equal(result.status, 1);
   assert.equal(result.stdout, "");
   assert.match(result.stderr, /Restore the published construction callback/);
@@ -210,4 +211,15 @@ test("ordinary imports inside another worker remain inert", () => {
   assert.equal(result.status, 0);
   assert.equal(result.stdout, "");
   assert.equal(result.stderr, "");
+});
+
+test("host exceptions take the private worker boundary without uncaught-exception teardown", (t) => {
+  const f = fixture(
+    t,
+    `import fs from 'node:fs';process.once('uncaughtException',()=>fs.writeFileSync('uncaught.txt','bad'));export async function runConstructionJournalCallbackV1(){throw new Error('PRIVATE_SYNTHETIC_NATIVE_FAILURE')}`,
+  );
+  const result = f.run();
+  rejected(result);
+  assert.equal(fs.existsSync(path.join(f.host, "uncaught.txt")), false);
+  assert.doesNotMatch(result.stderr, /PRIVATE_SYNTHETIC_NATIVE_FAILURE/);
 });
