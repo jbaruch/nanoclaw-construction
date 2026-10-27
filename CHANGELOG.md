@@ -1,5 +1,9 @@
 # Changelog
 
+### Add an inactive payment proposal component (nanoclaw#1039)
+
+Validate model-extracted, source-cited payment fields and compare complete displayed journal rows with exact USD cents. Keep invoices, missing facts, other currencies and possible duplicates in clarification. Add a bounded JSON command with no write authority and synthetic tests. Native intake, approved append, publication and installed overlay acceptance remain outstanding.
+
 ## 0.1.0 — 2026-10-28
 
 ### Establish the construction boundary and central publication
