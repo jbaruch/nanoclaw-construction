@@ -8,6 +8,7 @@
 .agents/
 .vscode/
 .github/skills/
+.github/hooks/tessl.json
 
 # Local state and private operator configuration never ship.
 .env
