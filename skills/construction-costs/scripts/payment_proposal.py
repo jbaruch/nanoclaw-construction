@@ -156,7 +156,7 @@ def _journal_rows(value: object) -> list[tuple[int, list[str]]]:
                     _key(texts[1]),
                     _key(texts[2]),
                     _amount(texts[3], formatted=True),
-                    _method(texts[4]),
+                    METHODS.get(_key(texts[4]), _key(texts[4])),
                 ],
             )
         )

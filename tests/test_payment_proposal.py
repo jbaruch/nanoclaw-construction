@@ -121,7 +121,7 @@ class PaymentProposalTests(unittest.TestCase):
     def test_complete_valid_journal_is_required_even_when_facts_are_missing(
         self,
     ) -> None:
-        for mutation in ("partial", "header", "row", "amount", "method", "date"):
+        for mutation in ("partial", "header", "row", "amount", "date"):
             with self.subTest(mutation=mutation):
                 value = request()
                 value["journal"]["rows"] = [
@@ -135,8 +135,6 @@ class PaymentProposalTests(unittest.TestCase):
                     value["journal"]["rows"][0] = ["9/14/2026"]
                 elif mutation == "amount":
                     value["journal"]["rows"][0][3] = "$1,00.00"
-                elif mutation == "method":
-                    value["journal"]["rows"][0][4] = "unspecified"
                 else:
                     value["journal"]["rows"][0][0] = "9/31/2026"
                 value["extraction"]["payee"] = {
@@ -181,6 +179,26 @@ class PaymentProposalTests(unittest.TestCase):
             ["9/15/2026", "foundation work", "Example Builder", "$1,234.56", "ACH"]
         ]
         self.assertEqual(prepare_proposal(value)["disposition"], "possible_duplicate")
+
+    def test_legacy_method_does_not_block_or_bypass_duplicate_comparison(self) -> None:
+        value = request()
+        value["journal"]["rows"] = [
+            [
+                "9/15/2026",
+                "foundation work",
+                "Example Builder",
+                "$1,234.56",
+                "Legacy transfer entry",
+            ]
+        ]
+        self.assertEqual(prepare_proposal(value)["disposition"], "possible_duplicate")
+        value["journal"]["rows"][0][0] = "9/14/2026"
+        self.assertEqual(
+            prepare_proposal(value)["disposition"], "ready_for_owner_review"
+        )
+        value["journal"]["rows"][0][4] = ""
+        with self.assertRaises(ProposalError):
+            prepare_proposal(value)
 
     def test_distinct_payment_date_does_not_merge_by_payee_or_amount(self) -> None:
         value = request()

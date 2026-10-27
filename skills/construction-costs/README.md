@@ -25,6 +25,8 @@ after the header, using displayed string values in sheet order. Header names
 are Date, Purpose, Recepient (also Recipient or Payee), Amount, Payment type.
 Dates use the existing US display convention. Amounts represent USD with
 exact cents. Unsupported or partial journal observations refuse comparison.
+Historical nonempty payment-method labels remain literal data when no known
+alias applies; date/payee/amount duplicate checks never invent their meaning.
 An invoice or pending notice requires payment clarification. No field defaults
 to the mail receipt date, sender name, guessed amount, or converted currency.
 
