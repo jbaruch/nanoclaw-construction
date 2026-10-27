@@ -15,6 +15,7 @@ from typing import Any
 sys.path.insert(
     0, str(Path(__file__).resolve().parents[1] / "skills/construction-costs/scripts")
 )
+# The standalone script import follows the explicit scripts-directory path setup.
 from payment_proposal import ProposalError, prepare_proposal, run  # noqa: E402
 
 
@@ -249,6 +250,26 @@ class PaymentProposalTests(unittest.TestCase):
                 self.assertTrue(
                     diagnostics.getvalue().startswith("payment proposal refused:")
                 )
+
+    def test_cli_normalizes_real_decoder_integer_and_recursion_limits(self) -> None:
+        original_limit = sys.get_int_max_str_digits()
+        try:
+            sys.set_int_max_str_digits(4300)
+            cases = (
+                b"9" * 5000,
+                b"[" * (sys.getrecursionlimit() + 100)
+                + b"0"
+                + b"]" * (sys.getrecursionlimit() + 100),
+            )
+            for raw in cases:
+                with self.subTest(prefix=raw[:20]):
+                    output, diagnostics = io.StringIO(), io.StringIO()
+                    self.assertEqual(run(io.BytesIO(raw), output, diagnostics), 1)
+                    self.assertEqual(output.getvalue(), "")
+                    self.assertIn("payment proposal refused:", diagnostics.getvalue())
+                    self.assertNotIn("Traceback", diagnostics.getvalue())
+        finally:
+            sys.set_int_max_str_digits(original_limit)
 
 
 if __name__ == "__main__":

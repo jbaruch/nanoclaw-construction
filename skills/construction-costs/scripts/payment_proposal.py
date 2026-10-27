@@ -265,11 +265,16 @@ def run(source: BinaryIO, output: TextIO, diagnostics: TextIO) -> int:
         raw = source.read(4 * 1024 * 1024 + 1)
         if len(raw) > 4 * 1024 * 1024:
             raise ProposalError("Supply a complete request within the 4 MiB limit.")
-        value = json.loads(
-            raw.decode("utf-8"),
-            object_pairs_hook=_unique_object,
-            parse_constant=_reject_constant,
-        )
+        try:
+            value = json.loads(
+                raw.decode("utf-8"),
+                object_pairs_hook=_unique_object,
+                parse_constant=_reject_constant,
+            )
+        except ProposalError:
+            raise
+        except (ValueError, RecursionError) as error:
+            raise ProposalError("Supply bounded, valid UTF-8 JSON.") from error
         result = prepare_proposal(value)
     except (ProposalError, UnicodeError, json.JSONDecodeError) as error:
         message = (
