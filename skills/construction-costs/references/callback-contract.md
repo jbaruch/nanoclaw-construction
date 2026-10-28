@@ -16,10 +16,11 @@ Historical journal method labels remain literal read-only data.
 
 The host builds the exact visible card from its protected proposal. It includes
 all five row fields, source summary and any duplicate warning. Its two public
-choices are Append or Append another, and Skip. Each choice carries only
+choices are «Добавить» or «Добавить ещё», and «Пропустить». Each choice carries only
 `schema_version:1`, the opaque `proposal_id`, exact `row_sha256` and its
 `decision` of `append` or `cancel`. Public card text, labels, choice order and
-payload must match the stored proposal. Generic owner-answer JSON cannot release
+payload must match the stored proposal. Owner-facing card/status text is
+Russian; quoted business values and wire identifiers remain literal. Generic owner-answer JSON cannot release
 this effect.
 
 The proposal expires after 24 hours. The private card transaction binds the
@@ -43,6 +44,16 @@ The target spreadsheet is selected only by protected host configuration. The
 native title is Construction costs, locale en_US, sheet ID 0 and title Sheet1.
 No public sheet ID, credential, provider URL, host path, role, clock or executable
 selector belongs in a callback payload.
+
+## Private document diagnostics
+
+Financial row values and source/document text must never enter shared host
+logs at any level, including rejected requests and recoverable delivery errors.
+The host classifies validated construction cards as sensitive before transport;
+callers supply no privacy or approval flag. Preserve routing/length/fixed error
+metadata and the protected uncertainty gate, without raw payload previews or
+transport/JSON error objects. Recoverable delivery failures cannot authorize
+replay; unexpected programming defects still surface.
 
 ## Fixed host lookup
 
