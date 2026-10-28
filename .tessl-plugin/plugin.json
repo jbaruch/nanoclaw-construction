@@ -1,8 +1,14 @@
 {
   "name": "jbaruch/nanoclaw-construction",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Review source-cited construction payment proposals through protected owner callbacks and a host-owned append journal.",
   "private": false,
-  "skills": ["skills/construction-costs"],
-  "rules": ["rules/construction-provider-boundary.md", "rules/construction-journal-callbacks.md", "rules/nanoclaw-skill-root.md"]
+  "skills": [
+    "skills/construction-costs"
+  ],
+  "rules": [
+    "rules/construction-provider-boundary.md",
+    "rules/construction-journal-callbacks.md",
+    "rules/nanoclaw-skill-root.md"
+  ]
 }
