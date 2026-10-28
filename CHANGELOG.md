@@ -1,5 +1,9 @@
 # Changelog
 
+### Add source-cited construction payment review (nanoclaw#1039)
+
+Prepare complete forwarded text and sanitized Gmail label sources for model-cited payment rows. Require the native host's complete journal preview, duplicate warning and exact owner buttons before an append. Ship bounded source validators and the fixed private callback adapter; preserve uncertain writes without automatic replay. The matching producer renders Russian owner choices/statuses and keeps document contents out of shared diagnostics through sensitive financial-card delivery. Provider grants, overlay registration and genuine native append/readback acceptance remain separate deployment requirements.
+
 ## 0.1.0 — 2026-10-28
 
 ### Establish the construction boundary and central publication

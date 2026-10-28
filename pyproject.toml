@@ -1,0 +1,12 @@
+[tool.ruff]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
+
+[tool.pyright]
+pythonVersion = "3.12"
+typeCheckingMode = "standard"
+include = ["skills/construction-costs/scripts", "tests"]
+extraPaths = ["skills/construction-costs/scripts"]
