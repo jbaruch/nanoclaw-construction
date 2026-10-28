@@ -1,7 +1,1 @@
-{
-  "name": "jbaruch/nanoclaw-construction",
-  "version": "0.1.0",
-  "description": "Construction integration boundary for protected owner-approved payment journals.",
-  "private": false,
-  "rules": ["rules/construction-provider-boundary.md"]
-}
+{"description":"Construction integration boundary for protected owner-approved payment journals.","name":"jbaruch/nanoclaw-construction","private":false,"rules":["rules/construction-provider-boundary.md"],"version":"0.1.0"}
