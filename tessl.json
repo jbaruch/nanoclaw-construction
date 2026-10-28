@@ -1,0 +1,8 @@
+{
+  "name": "nanoclaw-construction",
+  "mode": "managed",
+  "dependencies": {
+    "jbaruch/coding-policy": { "version": "latest" },
+    "jbaruch/nanoclaw-host": { "version": "latest" }
+  }
+}
