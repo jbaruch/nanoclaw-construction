@@ -13,6 +13,7 @@ const WRAPPER = fileURLToPath(
 );
 const ID = "A".repeat(22);
 const RESULT = { status: "applied", text: "Synthetic confirmed callback" };
+/** @param {import("node:test").TestContext} t */
 function fixture(
   t,
   source = `export async function runConstructionJournalCallbackV1(id){return ${JSON.stringify(RESULT)}}`,
@@ -44,6 +45,7 @@ function fixture(
   }
   return { root, host, entry, env, run };
 }
+/** @param {import("node:child_process").SpawnSyncReturns<string>} result */
 function rejected(result) {
   assert.equal(result.signal, null);
   assert.equal(result.status, 1);
