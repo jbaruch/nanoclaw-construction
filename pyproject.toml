@@ -8,5 +8,5 @@ ignore = ["E501"]
 [tool.pyright]
 pythonVersion = "3.12"
 typeCheckingMode = "standard"
-include = ["skills/construction-costs/scripts", "tests"]
-extraPaths = ["skills/construction-costs/scripts"]
+include = ["skills/construction-costs/scripts", "skills/construction-site/scripts", "tests"]
+extraPaths = ["skills/construction-costs/scripts", "skills/construction-site/scripts"]

@@ -1,5 +1,9 @@
 # Changelog
 
+### Answer what is happening on site from the camera (#7, #8)
+
+Add `construction-site`. It reports the camera's health, renders contact sheets and full-resolution crops of the frames, and saves a digest each evening for the morning brief. The model judges the images; a script does the counting and the rendering.
+
 ## 0.2.0 — 2026-11-01
 
 ### Add source-cited construction payment review (nanoclaw#1039)

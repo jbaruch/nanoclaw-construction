@@ -2,8 +2,8 @@
 
 # NanoClaw Construction
 
-Construction payment journal overlay for NanoClaw, tracked in
-[nanoclaw#1039](https://github.com/jbaruch/nanoclaw/issues/1039).
+Overlay for the house build: the site camera, and the construction payment journal
+tracked in [nanoclaw#1039](https://github.com/jbaruch/nanoclaw/issues/1039).
 
 ## Install
 
@@ -11,10 +11,14 @@ Construction payment journal overlay for NanoClaw, tracked in
 tessl install jbaruch/nanoclaw-construction
 ```
 
-Installation loads the skill and its rules. It grants no provider access,
+Installation loads the skills and their rules. It grants no provider access,
 registers no runtime overlay and enables no spreadsheet write.
 
-The source includes a one-shot main skill, complete-source validators and the
+`construction-site` answers «чо там как на стройке» from the camera frames on main's
+read-only `construction-site` mount, and saves a digest each evening at 18:30 site time
+for the morning brief. It reads frames only.
+
+For payments, the source includes a one-shot main skill, complete-source validators and the
 fixed owner callback provider. It selects candidate threads with Gmail label
 `NanoClaw/Construction`, proposes the complete payment row, asks for missing facts
 and uses the host's exact owner buttons. It never creates bank payments.
@@ -24,7 +28,7 @@ Sheets routing and positive acknowledgment/readback confirmation. A lost result
 never permits an automatic retry. No payment data, sheet ID or credential is
 part of this repository.
 
-This feature is not deployed. Host authority publication, the matching core
+The payment journal is not deployed. Host authority publication, the matching core
 producer, OneCLI Sheets connection/grants, main overlay registration, label
 setup and actual native owner acceptance remain required. This one-shot skill
 declares no recurring task or change to personal email cadence.
@@ -46,6 +50,7 @@ stdlib Node callback boundary. Dev packages do not ship in the plugin.
 | Skill | Purpose |
 | --- | --- |
 | [construction-costs](skills/construction-costs/SKILL.md) | Prepare source-cited rows, obtain a full native journal preview and present exact owner choices. |
+| [construction-site](skills/construction-site/SKILL.md) | Answer site questions from the camera frames and save the daily digest. |
 
 ## Review and Publication
 

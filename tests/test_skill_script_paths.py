@@ -46,3 +46,27 @@ class SkillPathsTests(unittest.TestCase):
         frontmatter = text.split("---", 2)[1]
         self.assertNotRegex(frontmatter, r"(?m)^(?:cadence|script):")
         self.assertTrue((SKILL / "references/callback-contract.md").is_file())
+
+    def test_every_camera_command_resolves_and_the_cadence_is_complete(self) -> None:
+        manifest = json.loads((ROOT / ".tessl-plugin/plugin.json").read_text())
+        self.assertIn("skills/construction-site", manifest["skills"])
+        site = ROOT / "skills/construction-site"
+        text = (site / "SKILL.md").read_text()
+        frontmatter = text.split("---", 2)[1]
+        self.assertRegex(
+            frontmatter, r'(?m)^cadence: "30 18 \* \* \* \(TZ=America/Chicago\)"$'
+        )
+        script = re.search(r'(?m)^script: "([^"]+)"$', frontmatter)
+        assert script is not None
+        self.assertTrue((site / script.group(1)).is_file())
+        documents = text + (site / "references/reading-frames.md").read_text()
+        targets = re.findall(
+            r"python3 /home/node/\.claude/skills/tessl__construction-site/(scripts/[A-Za-z0-9_.-]+)",
+            documents,
+        )
+        self.assertEqual(set(targets), {"scripts/frames.py"})
+        self.assertTrue((site / "scripts/frames.py").is_file())
+        for reference in re.findall(
+            r"skills/construction-site/(references/[a-z-]+\.md)", text
+        ):
+            self.assertTrue((site / reference).is_file())
