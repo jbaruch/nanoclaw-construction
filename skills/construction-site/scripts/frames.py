@@ -331,29 +331,31 @@ def sheet_html(frames: list[Frame], cols: int, tile: int, crop) -> tuple[str, in
 
 def render(page: str, width: int, height: int) -> Path:
     """Render a page to a PNG with the image's headless Chromium."""
+    # The PNG outlives this call so the agent can read it; the browser profile doesn't.
     folder = Path(tempfile.mkdtemp(prefix="construction-site-"))
     source, output = folder / "sheet.html", folder / "sheet.png"
     source.write_text(page)
     try:
-        result = subprocess.run(
-            [
-                "chromium",
-                "--headless=new",
-                "--no-sandbox",
-                "--disable-gpu",
-                "--hide-scrollbars",
-                "--allow-file-access-from-files",
-                f"--user-data-dir={folder / 'profile'}",
-                "--virtual-time-budget=15000",
-                f"--window-size={width},{height}",
-                f"--screenshot={output}",
-                source.as_uri(),
-            ],
-            capture_output=True,
-            text=True,
-            timeout=RENDER_TIMEOUT_SECONDS,
-            check=False,
-        )
+        with tempfile.TemporaryDirectory(prefix="construction-chromium-") as profile:
+            result = subprocess.run(
+                [
+                    "chromium",
+                    "--headless=new",
+                    "--no-sandbox",
+                    "--disable-gpu",
+                    "--hide-scrollbars",
+                    "--allow-file-access-from-files",
+                    f"--user-data-dir={profile}",
+                    "--virtual-time-budget=15000",
+                    f"--window-size={width},{height}",
+                    f"--screenshot={output}",
+                    source.as_uri(),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=RENDER_TIMEOUT_SECONDS,
+                check=False,
+            )
     except (OSError, subprocess.TimeoutExpired) as error:
         raise SiteError(
             f"Chromium could not render the sheet: {error}. Try fewer tiles."
@@ -425,6 +427,8 @@ def save_digest(raw: str, hours, every: int, zone: ZoneInfo, now: datetime) -> d
         raise SiteError("Supply the digest as JSON on stdin.") from None
     if not isinstance(value, dict) or set(value) != {"site_date", "lines", "frames"}:
         raise SiteError("Supply exactly site_date, lines and frames.")
+    if not isinstance(value["site_date"], str):
+        raise SiteError("Supply site_date as YYYY-MM-DD, the wake's date.")
     day = parse_date(value["site_date"], zone, now)
     lines, cited = value["lines"], value["frames"]
     if (

@@ -296,6 +296,24 @@ class RenderTests(unittest.TestCase):
         output = self.run_render(0, True)
         self.addCleanup(shutil.rmtree, output.parent)
         self.assertEqual(output.read_bytes(), b"png")
+        self.assertEqual(
+            sorted(p.name for p in output.parent.iterdir()), ["sheet.html", "sheet.png"]
+        )
+
+    def test_the_browser_profile_is_removed_after_the_screenshot(self) -> None:
+        profiles = []
+
+        def fake_run(command, **kwargs):
+            profile = next(arg for arg in command if arg.startswith("--user-data-dir="))
+            profiles.append(Path(profile.split("=", 1)[1]))
+            shot = next(arg for arg in command if arg.startswith("--screenshot="))
+            Path(shot.split("=", 1)[1]).write_bytes(b"png")
+            return subprocess.CompletedProcess(command, 0, "", "")
+
+        with mock.patch.object(frames.subprocess, "run", fake_run):
+            output = frames.render("<html></html>", 100, 100)
+        self.addCleanup(shutil.rmtree, output.parent)
+        self.assertFalse(profiles[0].exists())
 
     def test_a_chromium_failure_is_reported_with_its_error(self) -> None:
         with self.assertRaisesRegex(frames.SiteError, "exit 1.*no display"):
@@ -361,6 +379,8 @@ class DigestTests(SiteCase):
             {"site_date": "soon", "lines": ["x"], "frames": []},
             {"site_date": "2026-11-02", "lines": ["x"]},
             {"site_date": "2026-11-02", "lines": ["x"], "frames": [1]},
+            {"site_date": None, "lines": ["x"], "frames": []},
+            {"site_date": 20261102, "lines": ["x"], "frames": []},
         ):
             with self.subTest(value=value), self.assertRaises(frames.SiteError):
                 self.save(value)
