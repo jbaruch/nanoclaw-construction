@@ -62,4 +62,4 @@ Save it:
 python3 /home/node/.claude/skills/tessl__construction-site/scripts/frames.py save-digest --hours <hours> --every <every> < /tmp/construction-digest.json
 ```
 
-A success prints the saved path. The morning brief reads the digest, so send nothing to the chat and produce no output. Finish here.
+A success prints the saved path. The morning brief reads the digest, so send nothing to the chat and produce no output. A failed save prints a repair on stderr: send that to the chat in Russian, since the brief would otherwise only say the digest is unavailable. Finish here.
