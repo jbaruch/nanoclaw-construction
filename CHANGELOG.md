@@ -1,5 +1,9 @@
 # Changelog
 
+### Append approved payment rows directly (nanoclaw#1039)
+
+The payment journal waited on a host proposal store, permanent append gates, a callback provider and a dedicated OneCLI identity, and was never turned on. `construction-costs` now shows the row on an ordinary Да/Нет card and, after «Записать», appends it with `scripts/costs.py` (duplicate check, readback). Removed the source-packet validators, the callback provider, both journal rules and the Node tooling they needed.
+
 ### Answer what is happening on site from the camera (#7, #8)
 
 Add `construction-site`. It reports the camera's health, renders contact sheets and full-resolution crops of the frames, and saves a digest each evening for the morning brief. The model judges the images; a script does the counting and the rendering.
