@@ -42,13 +42,9 @@ Run checks with the pinned `requirements-dev.txt` tools and unittest.
 ## Review and Publication
 
 The `.github/fleet-review-enabled` marker enrolls independent policy and code
-quality review. `.github/fleet-publish-enabled` enrolls source-bound Tessl
-publication through the
-[central coding-policy owner](https://github.com/jbaruch/coding-policy/blob/main/skills/release/references/fleet-publication.md).
-That owner validates the projected package, stamps `CHANGELOG.md`, publishes and
-confirms registry and moderation results. Publication credentials and App
-permissions remain in `coding-policy`. This repository has no competing
-publisher workflow or dispatch secret.
+quality review. `.github/workflows/publish.yml` publishes each merge to `main`
+through the shared coding-policy publish workflow, like the other NanoClaw
+plugins, and stamps `CHANGELOG.md`.
 
 Publication does not establish native runtime acceptance. This package contains
 no financial data or credentials.

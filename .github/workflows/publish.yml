@@ -1,0 +1,36 @@
+name: Review & Publish Plugin
+
+# Thin caller for the canonical fleet publish pipeline
+# (jbaruch/coding-policy#206). All steps live in the reusable workflow;
+# this file carries only the triggers and this repo's inputs. The display
+# name is NOT load-bearing: watchers match the workflow file (`publish.yml`)
+# per `nanoclaw-host: post-merge-publish-watch`, because the fleet's display
+# names diverged during the tile→plugin rename.
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# The reusable workflow's own permissions are capped by what the caller
+# grants — declare the publish pipeline's needs explicitly.
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  publish:
+    uses: jbaruch/coding-policy/.github/workflows/publish-plugin.yml@af116ebf18a7c46a672bf176064908736bc8ac28
+    # Forward only the token the reusable workflow declares (not `inherit`).
+    secrets:
+      TESSL_TOKEN: ${{ secrets.TESSL_TOKEN }}
+    with:
+      # This repo opts into the tessl out-of-credits tolerance (default fail).
+      skill-review-credit-outage: skip
+      # Stamp the version heading onto the top un-headed CHANGELOG entries.
+      # Without this the reusable workflow skips its stamp step, which is why
+      # every entry back to 2026-05 sat under a forbidden `## Unreleased`
+      # bucket that nothing was ever going to replace.
+      stamp-changelog: true
