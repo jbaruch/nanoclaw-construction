@@ -25,11 +25,22 @@ def load() -> Any:
     return module
 
 
+def formatted(cell: str) -> str:
+    """What Sheets shows after parsing an entered cell (USER_ENTERED)."""
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", cell):
+        y, m, d = (int(x) for x in cell.split("-"))
+        return f"{m}/{d}/{y}"
+    if re.fullmatch(r"\$?[\d,]+(\.\d+)?", cell):
+        return f"${float(cell.replace('$', '').replace(',', '')):,.2f}"
+    return cell
+
+
 class FakeSheet:
     """Sheet1!A:E with the Sheets v4 values/append response shapes."""
 
-    def __init__(self, values):
+    def __init__(self, values, reformat=False):
         self.values = values
+        self.reformat = reformat
         self.calls = []
 
     def urlopen(self, request, timeout):
@@ -37,7 +48,7 @@ class FakeSheet:
         url = request.full_url
         if request.get_method() == "POST":
             row = json.loads(request.data)["values"][0]
-            self.values.append(row)
+            self.values.append([formatted(c) for c in row] if self.reformat else row)
             n = len(self.values)
             body = {"updates": {"updatedRange": f"Sheet1!A{n}:E{n}"}}
         elif "Sheet1%21A%3AE" in url:
@@ -92,6 +103,27 @@ class CostsTests(unittest.TestCase):
         code, out = self.run_cli(["append"], json.dumps({"row": ROW}), sheet=sheet)
         self.assertEqual((code, out), (3, {"duplicate": 2}))
         self.assertEqual([m for m, _ in sheet.calls], ["GET"])
+
+    def test_reformatted_cells_still_read_back_and_match_as_duplicates(self):
+        sheet = FakeSheet(
+            [["Date", "Purpose", "Recepient", "Amount", "Payment type"]], reformat=True
+        )
+        entered = ["2026-11-02", "Framing deposit", "Acme Builders", "12500", "wire"]
+        code, out = self.run_cli(["append"], json.dumps({"row": entered}), sheet=sheet)
+        self.assertEqual((code, out["appended"]), (0, "Sheet1!A2:E2"))
+        self.assertEqual(
+            sheet.values[1],
+            ["11/2/2026", "Framing deposit", "Acme Builders", "$12,500.00", "wire"],
+        )
+        again = [
+            "11/02/2026",
+            "framing deposit",
+            "Acme  Builders",
+            "$12,500.00",
+            "Wire",
+        ]
+        code, out = self.run_cli(["append"], json.dumps({"row": again}), sheet=sheet)
+        self.assertEqual((code, out), (3, {"duplicate": 2}))
 
     def test_a_short_row_is_bad_input(self):
         sheet = FakeSheet([])
