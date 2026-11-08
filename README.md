@@ -2,7 +2,7 @@
 
 # NanoClaw Construction
 
-Overlay for the house build: the site camera, and the construction payment journal
+Overlay for the house build: the site camera, and the construction payments sheet
 tracked in [nanoclaw#1039](https://github.com/jbaruch/nanoclaw/issues/1039).
 
 ## Install
@@ -11,45 +11,32 @@ tracked in [nanoclaw#1039](https://github.com/jbaruch/nanoclaw/issues/1039).
 tessl install jbaruch/nanoclaw-construction
 ```
 
-Installation loads the skills and their rules. It grants no provider access,
-registers no runtime overlay and enables no spreadsheet write.
+Installation loads the skills and their rules.
 
 `construction-site` answers «чо там как на стройке» from the camera frames on main's
 read-only `construction-site` mount, and saves a digest each evening at 18:30 site time
 for the morning brief. It reads frames only.
 
-For payments, the source includes a one-shot main skill, complete-source validators and the
-fixed owner callback provider. It selects candidate threads with Gmail label
-`NanoClaw/Construction`, proposes the complete payment row, asks for missing facts
-and uses the host's exact owner buttons. It never creates bank payments.
+`construction-costs` turns a forwarded invoice or payment notice into a five-cell row
+(date, purpose, payee, amount, method), shows it on a Да/Нет card and, after «Записать»,
+appends it to the «Construction costs» sheet with `scripts/costs.py`, which refuses an
+identical row and reads the written row back. It needs a Google Sheets connection on
+main's OneCLI tier and `/workspace/group/construction-costs.json` with the `sheet_id`.
+It never creates bank payments.
 
-The matching core producer owns native journal reads, private append gates,
-Sheets routing and positive acknowledgment/readback confirmation. A lost result
-never permits an automatic retry. No payment data, sheet ID or credential is
-part of this repository.
-
-The payment journal is not deployed. Host authority publication, the matching core
-producer, OneCLI Sheets connection/grants, main overlay registration, label
-setup and actual native owner acceptance remain required. This one-shot skill
-declares no recurring task or change to personal email cadence.
-
-Run Python checks with the pinned `requirements-dev.txt` tools and unittest;
-run `npm ci`, `npm run format:check`, `npm run typecheck`, and `npm test` for the
-stdlib Node callback boundary. Dev packages do not ship in the plugin.
+Run checks with the pinned `requirements-dev.txt` tools and unittest.
 
 ## Rules
 
 | Rule | Purpose |
 | --- | --- |
-| [construction-provider-boundary](rules/construction-provider-boundary.md) | Require published native authority and content-bound owner approval for construction writes. |
-| [construction-journal-callbacks](rules/construction-journal-callbacks.md) | Bind journal writes to the exact protected native owner callback. |
 | [nanoclaw-skill-root](rules/nanoclaw-skill-root.md) | Resolve fixed installed skill paths. |
 
 ## Skills
 
 | Skill | Purpose |
 | --- | --- |
-| [construction-costs](skills/construction-costs/SKILL.md) | Prepare source-cited rows, obtain a full native journal preview and present exact owner choices. |
+| [construction-costs](skills/construction-costs/SKILL.md) | Turn a payment into a row, ask on a Да/Нет card, append it after «Записать». |
 | [construction-site](skills/construction-site/SKILL.md) | Answer site questions from the camera frames and save the daily digest. |
 
 ## Review and Publication

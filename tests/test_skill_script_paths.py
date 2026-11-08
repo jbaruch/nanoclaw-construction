@@ -22,30 +22,18 @@ class SkillPathsTests(unittest.TestCase):
             r"python3 /home/node/\.claude/skills/tessl__construction-costs/(scripts/[A-Za-z0-9_.-]+)",
             text,
         )
-        self.assertEqual(
-            set(targets),
-            {
-                "scripts/source_from_mail.py",
-                "scripts/source_from_text.py",
-                "scripts/payment_proposal.py",
-            },
-        )
+        self.assertEqual(set(targets), {"scripts/costs.py"})
         for target in targets:
             with self.subTest(target=target):
                 actual = SKILL / target
                 self.assertTrue(actual.is_file())
                 self.assertFalse(actual.is_symlink())
         self.assertNotIn("python3 .tessl/", text)
-        self.assertNotIn(
-            "node /home/node/.claude/skills/tessl__construction-costs/scripts/construction-journal-callback",
-            text,
-        )
 
     def test_one_shot_declares_no_partial_or_hidden_cadence(self) -> None:
         text = (SKILL / "SKILL.md").read_text()
         frontmatter = text.split("---", 2)[1]
         self.assertNotRegex(frontmatter, r"(?m)^(?:cadence|script):")
-        self.assertTrue((SKILL / "references/callback-contract.md").is_file())
 
     def test_every_camera_command_resolves_and_the_cadence_is_complete(self) -> None:
         manifest = json.loads((ROOT / ".tessl-plugin/plugin.json").read_text())
