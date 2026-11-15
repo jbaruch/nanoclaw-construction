@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.5 — 2026-11-15
+
+- chore: refresh the Tessl-generated ignore block (#13)
+
 ## 0.2.2 — 2026-11-08
 
 ### Append approved payment rows directly (nanoclaw#1039)
