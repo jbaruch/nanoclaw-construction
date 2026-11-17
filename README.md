@@ -26,6 +26,27 @@ It never creates bank payments.
 
 Run checks with the pinned `requirements-dev.txt` tools and unittest.
 
+## Dependency updates
+
+[Renovate](renovate.json) is the only dependency update scanner. Its native
+[pip requirements manager](https://docs.renovatebot.com/modules/manager/pip_requirements/)
+covers [requirements-dev.txt](requirements-dev.txt), and its
+[GitHub Actions manager](https://docs.renovatebot.com/modules/manager/github-actions/)
+covers actions and reusable workflows in [.github/workflows](.github/workflows).
+
+The update window is `before 6am on monday`. Updates use `chore(deps)` commits,
+with at most five concurrent PRs and one group for minor, patch and digest updates.
+Major updates require dashboard approval under the
+[dependency-update requirements](https://github.com/jbaruch/nanoclaw/issues/1433).
+Select the major update's checkbox in the Dependency Dashboard to allow branch
+and PR creation; see [Renovate's approval documentation](https://docs.renovatebot.com/configuration-options/#dependencydashboardapproval).
+
+Validate configuration changes from the repository root:
+
+```sh
+npx --yes --package renovate -- renovate-config-validator renovate.json
+```
+
 ## Rules
 
 | Rule | Purpose |
