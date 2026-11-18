@@ -36,11 +36,6 @@ covers actions and reusable workflows in [.github/workflows](.github/workflows).
 
 The update window is `before 6am on monday`. Updates use `chore(deps)` commits,
 with at most five concurrent PRs and one group for minor, patch and digest updates.
-Renovate opens the grouped updates automatically. For major updates,
-[the dependency-update requirements](https://github.com/jbaruch/nanoclaw/issues/1433)
-explicitly require `dependencyDashboardApproval: true` in [renovate.json](renovate.json).
-Select the major update's checkbox in the Dependency Dashboard to allow branch
-and PR creation; see [Renovate's approval documentation](https://docs.renovatebot.com/configuration-options/#dependencydashboardapproval).
 
 See Renovate's [configuration validation documentation](https://docs.renovatebot.com/config-validation/)
 for checking changes to [renovate.json](renovate.json).
