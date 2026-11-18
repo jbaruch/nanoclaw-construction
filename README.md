@@ -32,7 +32,10 @@ Run checks with the pinned `requirements-dev.txt` tools and unittest.
 [pip requirements manager](https://docs.renovatebot.com/modules/manager/pip_requirements/)
 covers [requirements-dev.txt](requirements-dev.txt), and its
 [GitHub Actions manager](https://docs.renovatebot.com/modules/manager/github-actions/)
-covers actions and reusable workflows in [.github/workflows](.github/workflows).
+covers the version-commented actions in [test.yml](.github/workflows/test.yml#L15)
+and [test.yml](.github/workflows/test.yml#L18). The reusable workflow in
+[publish.yml](.github/workflows/publish.yml#L25) stays pinned to a full SHA,
+renewed in its own change.
 
 The update window is `before 6am on monday`. Updates use `chore(deps)` commits,
 with at most five concurrent PRs and one group for minor, patch and digest updates.
