@@ -42,11 +42,8 @@ explicitly require `dependencyDashboardApproval: true` in [renovate.json](renova
 Select the major update's checkbox in the Dependency Dashboard to allow branch
 and PR creation; see [Renovate's approval documentation](https://docs.renovatebot.com/configuration-options/#dependencydashboardapproval).
 
-Validate configuration changes from the repository root:
-
-```sh
-npx --yes --package renovate -- renovate-config-validator renovate.json
-```
+See Renovate's [configuration validation documentation](https://docs.renovatebot.com/config-validation/)
+for checking changes to [renovate.json](renovate.json).
 
 ## Rules
 
