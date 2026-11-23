@@ -26,6 +26,20 @@ It never creates bank payments.
 
 Run checks with the pinned `requirements-dev.txt` tools and unittest.
 
+## Dependency updates
+
+[Renovate](renovate.json) is the only dependency update scanner. Its native
+[pip requirements manager](https://docs.renovatebot.com/modules/manager/pip_requirements/)
+covers [requirements-dev.txt](requirements-dev.txt), and its
+[GitHub Actions manager](https://docs.renovatebot.com/modules/manager/github-actions/)
+covers actions and reusable workflows in [.github/workflows](.github/workflows).
+
+The update window is `before 6am on monday`. Updates use `chore(deps)` commits,
+with at most five concurrent PRs and one group for minor, patch and digest updates.
+
+See Renovate's [configuration validation documentation](https://docs.renovatebot.com/config-validation/)
+for checking changes to [renovate.json](renovate.json).
+
 ## Rules
 
 | Rule | Purpose |
